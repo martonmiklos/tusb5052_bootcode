@@ -1,0 +1,55 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+Z:\home\mm\Projektek\eagle\TUSB5052_USB_HUB\fejlesztes\code\tusb5052.uvproj
+Project File Date:  06/06/2015
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling bootcode.c...
+bootcode.h(91): warning C317: attempt to redefine macro 'FUNCTION_PID_L'
+bootcode.h(92): warning C317: attempt to redefine macro 'FUNCTION_PID_H'
+BOOTCODE.C(135): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(159): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(165): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(167): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(169): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(171): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(172): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(174): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(176): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(178): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(179): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(182): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(183): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(185): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(186): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(188): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(189): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(191): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(1214): error C249: 'DATA': SEGMENT TOO LARGE
+Target not created
+Build target 'Target 1'
+compiling bootcode.c...
+BOOTCODE.C(135): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(159): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(165): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(167): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(169): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(171): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(172): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(174): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(176): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(178): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(179): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(182): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(183): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(185): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(186): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(188): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(189): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(191): warning C245: unknown #pragma, line ignored
+BOOTCODE.C(1214): error C249: 'DATA': SEGMENT TOO LARGE
+Target not created
