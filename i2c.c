@@ -56,8 +56,10 @@ static BYTE bDeviceCategory;
 //----------------------------------------------------------------------------
 VOID i2cSetBusSpeed(BYTE bBusSpeed)
 {
-    if(bBusSpeed == I2C_400KHZ) bI2CSTA |= I2CSTA_400K;     // set bus speed at 400Khz
-    else bI2CSTA &= ~I2CSTA_400K;                           // set bus speed at 100Khz
+    if(bBusSpeed == I2C_400KHZ) 
+      bI2CSTA |= I2CSTA_400K;     // set bus speed at 400Khz
+    else 
+      bI2CSTA &= ~I2CSTA_400K;                           // set bus speed at 100Khz
 }
 
 //----------------------------------------------------------------------------

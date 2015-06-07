@@ -30,15 +30,18 @@ extern "C"
 /*−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−+
 | Release Notes:                                                              |
 +−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−*/
+
 /*−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−+
-                | Include files                                                               |
-                +−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−*/
+| Include files                                                               |
++−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−*/
+
 /*−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−+
-                | Function Prototype                                                          |
-                +−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−*/
+| Function Prototype                                                          |
++−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−*/
+
 /*−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−+
-                | Type Definition & Macro                                                     |
-                +−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−*/
+| Type Definition & Macro                                                     |
++−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−*/
 // EDB Data Structure
 typedef struct _tEDB
 {
@@ -51,6 +54,7 @@ typedef struct _tEDB
     BYTE    bEPBCTY;            // Endpoint Y Buffer byte Count
     BYTE    bEPSIZXY;           // Endpoint XY Buffer Size
 } tEDB, *tpEDB;
+
 typedef struct _tEDB0
 {
     BYTE    bIEPCNFG;           // Input Endpoint 0 Configuration Register
@@ -58,9 +62,14 @@ typedef struct _tEDB0
     BYTE    bOEPCNFG;           // Output Endpoint 0 Configuration Register
     BYTE    bOEPBCNT;           // Output Endpoint 0 Buffer Byte Count
 } tEDB0, *tpEDB0;
+
 /*−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−+
-                        | Constant Definition                                                         |
-                        +−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−*/
+| Constant Definition                                                         |
++−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−*/
+#define xdata __xdata
+#define code __code
+#define data __data
+
 #define SIZEOF_BOOTCODE_CONFIG_DESC_GROUP SIZEOF_CONFIG_DESCRIPTOR+SIZEOF_INTERFACE_DESCRIPTOR+SIZEOF_ENDPOINT_DESCRIPTOR
 // Power Control Register (@ SFR 87h)
 // PCON            0x87    // sfr 0x87

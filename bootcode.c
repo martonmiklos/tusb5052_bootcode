@@ -54,7 +54,7 @@
 
 +----------------------------------------------------------------------*/
 
-#include <reg51.h> // 8051 sfr definition
+#include <io51.h> // 8051 sfr definition
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -73,9 +73,7 @@
 #endif
 
 /*----------------------------------------------------------------------+
-
 | Constant Definition |
-
 +----------------------------------------------------------------------*/
 
 // for double buffer pointer
@@ -83,7 +81,7 @@
 #define X_BUFFER 0
 #define Y_BUFFER 1
 
-BYTE code abromDeviceDescriptor[SIZEOF_DEVICE_DESCRIPTOR] = {
+const BYTE code abromDeviceDescriptor[SIZEOF_DEVICE_DESCRIPTOR] = {
     SIZEOF_DEVICE_DESCRIPTOR, // Length of this descriptor (12h bytes)
     DESC_TYPE_DEVICE, // Type code of this descriptor (01h)
     0x10,0x01, // Release of USB spec (Rev 1.1)
@@ -100,7 +98,7 @@ BYTE code abromDeviceDescriptor[SIZEOF_DEVICE_DESCRIPTOR] = {
     1  // Number of configurations supported
 };
 
-BYTE code abromConfigurationDescriptorGroup[SIZEOF_BOOTCODE_CONFIG_DESC_GROUP] =
+const BYTE code abromConfigurationDescriptorGroup[SIZEOF_BOOTCODE_CONFIG_DESC_GROUP] =
 {
     // Configuration Descriptor, size=0x09
     SIZEOF_CONFIG_DESCRIPTOR, // bLength
@@ -128,7 +126,6 @@ BYTE code abromConfigurationDescriptorGroup[SIZEOF_BOOTCODE_CONFIG_DESC_GROUP] =
     EP_DESC_ATTR_TYPE_BULK, // bmAttributes, bulk transfer
     0x40, 0x00, // wMaxPacketSize, 64 bytes
     0x00 // bInterval
-
 };
 
 // Global Memory Map 
@@ -164,16 +161,20 @@ BYTE bi2cDeviceAddress; // in header.c
 +---------------------------------------------------------------------------*/
 #pragma memory = dataseg(TUSB5052_SETUPPACKET_SEG) // 0xff00
 tDEVICE_REQUEST tSetupPacket;
-#pragma memory = default #pragma memory = dataseg(TUSB5052_EP0_EDB_SEG) // 0xff80
+#pragma memory = default 
+#pragma memory = dataseg(TUSB5052_EP0_EDB_SEG) // 0xff80
 tEDB0 tEndPoint0DescriptorBlock;
-#pragma memory = default #pragma memory = dataseg(TUSB5052_IEP_EDB_SEG) // 0xff48
+#pragma memory = default 
+#pragma memory = dataseg(TUSB5052_IEP_EDB_SEG) // 0xff48
 tEDB tInputEndPointDescriptorBlock[1];
 #pragma memory = default
 #pragma memory = dataseg(TUSB5052_OEP_EDB_SEG) // 0xf940
 tEDB tOutputEndPointDescriptorBlock[1];
-#pragma memory = default #pragma memory = dataseg(TUSB5052_IEP0BUFFER_SEG) // 0xfef8
+#pragma memory = default 
+#pragma memory = dataseg(TUSB5052_IEP0BUFFER_SEG) // 0xfef8
 BYTE abIEP0Buffer[EP0_MAX_PACKET_SIZE];
-#pragma memory = default #pragma memory = dataseg(TUSB5052_OEP0BUFFER_SEG) // 0xfef0
+#pragma memory = default 
+#pragma memory = dataseg(TUSB5052_OEP0BUFFER_SEG) // 0xfef0
 BYTE abOEP0Buffer[EP0_MAX_PACKET_SIZE];
 #pragma memory = default
 #pragma memory = dataseg(TUSB5052_DESC_SEG) // 0xfc00
@@ -187,7 +188,7 @@ BYTE abXBufferAddress[EP_MAX_PACKET_SIZE];
 BYTE abYBufferAddress[EP_MAX_PACKET_SIZE];
 #pragma memory = default
 #pragma memory = dataseg(TUSB5052_EXTERNAL_RAM_SEG) // 0x0000
-BYTE abDownloadFirmware[1024*16];
+BYTE abDownloadFirmware[DOWNLOAD_FW_SIZE];
 #pragma memory = default
 
 /*---------------------------------------------------------------------------+
@@ -325,9 +326,7 @@ VOID Endpoint0Control(VOID)
                 tEndPoint0DescriptorBlock.bOEPBCNT = 0x00; // for status stage
             }
 
-            switch (tSetupPacket.bmRequestType & USB_REQ_TYPE_RECIP_MASK)
-
-            {
+            switch (tSetupPacket.bmRequestType & USB_REQ_TYPE_RECIP_MASK) {
             case USB_REQ_TYPE_DEVICE:
                 // check if wIndex is zero
                 if(tSetupPacket.bIndexL != 0x00){
@@ -342,7 +341,6 @@ VOID Endpoint0Control(VOID)
                     abReturnBuffer[0] = DEVICE_STATUS_SELF_POWER;
                 TransmitBufferOnEp0((PBYTE)abReturnBuffer);
                 break;
-
             case USB_REQ_TYPE_INTERFACE: // return all zeros
                 if(tSetupPacket.bIndexL != 0x00){
                     StallEndPoint0();
@@ -740,12 +738,12 @@ VOID Endpoint0Control(VOID)
             TransmitBufferOnEp0 ((PBYTE)abReturnBuffer); break;
 
         case 0x83: // prepare for update header
-            wCurrentUploadPointer = 0x0000; 
-			wCurrentFirmwareAddress = 0x0000; 
-			bRAMChecksum = 0x00;
+            wCurrentUploadPointer = 0x0000;
+            wCurrentFirmwareAddress = 0x0000;
+            bRAMChecksum = 0x00;
             wFirmwareLength = 0xffff; // skip firmware length/checksum
-            TransmitNullResponseOnEp0(); 
-			break;
+            TransmitNullResponseOnEp0();
+            break;
         case 0x84: // Update Header
 
             // bIndexH(BlockSize)
@@ -791,85 +789,73 @@ VOID Endpoint0Control(VOID)
                        MASK_I2C_DEVICE_ADDRESS,wIndex,1,&abReturnBuffer[0])==NO_ERROR){ bEp0TxBytesRemaining = 1;
 
                 TransmitBufferOnEp0 ((PBYTE)abReturnBuffer);
-
-            }else StallEndPoint0();
+            } else StallEndPoint0();
 
             break;
 
         case 0x93: // i2c memory write
             wIndex = (WORD)(tSetupPacket.bIndexH << 0x08) + (WORD)tSetupPacket.bIndexL;
-
+            
             // address write, bValueL(data), bValueH(device number)
-            abReturnBuffer[0] = tSetupPacket.bValueL; if(i2cWrite(tSetupPacket.bValueH &
-
-                                                                  MASK_I2C_DEVICE_ADDRESS,wIndex,1,&abReturnBuffer[0])== NO_ERROR){
-
+            abReturnBuffer[0] = tSetupPacket.bValueL;
+            if(i2cWrite(tSetupPacket.bValueH & MASK_I2C_DEVICE_ADDRESS,wIndex,1,&abReturnBuffer[0])== NO_ERROR){
                 DelaymSecond(0x05);
-
-                TransmitNullResponseOnEp0(); }else StallEndPoint0(); break;
-
+                TransmitNullResponseOnEp0();
+            } else {
+                StallEndPoint0();
+            }
+            break;
         case 0x94: // internal ROM memory read
-            wIndex = (WORD)(tSetupPacket.bIndexH << 0x08) +
-
-                    (WORD)tSetupPacket.bIndexL; abReturnBuffer[0] = *(pbInternalROM+wIndex); bEp0TxBytesRemaining = 1;
-
-            TransmitBufferOnEp0 ((PBYTE)abReturnBuffer); break;
-
+            wIndex = (WORD)(tSetupPacket.bIndexH << 0x08) + (WORD)tSetupPacket.bIndexL;
+            abReturnBuffer[0] = *(pbInternalROM+wIndex);
+            bEp0TxBytesRemaining = 1;
+            TransmitBufferOnEp0 ((PBYTE)abReturnBuffer);
+            break;
 #ifdef SIMULATION
-
             // for internal testing only! The host driver should NOT make these requests
-
         case 0xe0: // get current checksum
-            abReturnBuffer[0] = bRAMChecksum; bEp0TxBytesRemaining = 1;
-
-            TransmitBufferOnEp0 ((PBYTE)abReturnBuffer); break;
-
+            abReturnBuffer[0] = bRAMChecksum;
+            bEp0TxBytesRemaining = 1;
+            TransmitBufferOnEp0 ((PBYTE)abReturnBuffer);
+            break;
         case 0xe1: // get downloaded size
-            abReturnBuffer[0] = (BYTE)(wCurrentFirmwareAddress & 0x00ff); abReturnBuffer[1] = (BYTE)((wCurrentFirmwareAddress & 0xff00) >> 8); bEp0TxBytesRemaining = 2;
-
-            TransmitBufferOnEp0 ((PBYTE)abReturnBuffer); break;
-
+            abReturnBuffer[0] = (BYTE)(wCurrentFirmwareAddress & 0x00ff);
+            abReturnBuffer[1] = (BYTE)((wCurrentFirmwareAddress & 0xff00) >> 8);
+            bEp0TxBytesRemaining = 2;
+            TransmitBufferOnEp0 ((PBYTE)abReturnBuffer);
+            break;
         case 0xe2: // set download size and checksum
-
             // wValue(firmware size)
             // bIndexL(checksum)
-
-            wCurrentFirmwareAddress = (WORD)(tSetupPacket.bValueH << 0x08) +
-
-                    (WORD)tSetupPacket.bValueL;
-
-            bRAMChecksum = tSetupPacket.bIndexL; TransmitNullResponseOnEp0(); break;
-
+            wCurrentFirmwareAddress = (WORD)(tSetupPacket.bValueH << 0x08) + (WORD)tSetupPacket.bValueL;
+            bRAMChecksum = tSetupPacket.bIndexL;
+            TransmitNullResponseOnEp0();
+            break;
         case 0xF0: // ROM Address Dump
-            wIndex = (WORD)(tSetupPacket.bIndexH << 0x08) +
-
-                    (WORD)tSetupPacket.bIndexL; lcdRomDump(wIndex,4); TransmitNullResponseOnEp0(); break;
+            wIndex = (WORD)(tSetupPacket.bIndexH << 0x08) + (WORD)tSetupPacket.bIndexL; lcdRomDump(wIndex,4); TransmitNullResponseOnEp0();
+            break;
         case 0xF1: // External Memory Dump
-            wIndex = (WORD)(tSetupPacket.bIndexH << 0x08) +
-
-                    (WORD)tSetupPacket.bIndexL; lcdExternalMemoryDump(wIndex,4); TransmitNullResponseOnEp0(); break;
-
+            wIndex = (WORD)(tSetupPacket.bIndexH << 0x08) + (WORD)tSetupPacket.bIndexL; lcdExternalMemoryDump(wIndex,4); TransmitNullResponseOnEp0();
+            break;
         case 0xF2: // I2C Dump
-
             // wIndexH(Data Address)
-
             // wValueH(device type)
-
             // wValueL(device id)
-
-            i2cSetMemoryType(tSetupPacket.bValueH); bi2cDeviceAddress = tSetupPacket.bValueL; wIndex = (WORD)(tSetupPacket.bIndexH << 0x08) +
-
-                    (WORD)tSetupPacket.bIndexL; lcdI2cDump(wIndex,4); TransmitNullResponseOnEp0(); break;
-
-#endif default:
-
+            i2cSetMemoryType(tSetupPacket.bValueH);
+            bi2cDeviceAddress = tSetupPacket.bValueL;
+            wIndex = (WORD)(tSetupPacket.bIndexH << 0x08) + (WORD)tSetupPacket.bIndexL; lcdI2cDump(wIndex,4); TransmitNullResponseOnEp0();
+            break;
+#endif 
+        default:
             // stall input and output endpoint 0
-            StallEndPoint0(); return;
-
-        } break; case USB_REQ_TYPE_CLASS: default:
-
-        StallEndPoint0(); return;
-
+            StallEndPoint0();
+            return;
+        }
+        break;
+    case USB_REQ_TYPE_CLASS:
+    default:
+        StallEndPoint0();
+        return;
     }
 
 } //----------------------------------------------------------------------------
@@ -926,7 +912,11 @@ VOID CopyDefaultSettings(VOID)
     bHUBPIDL = HUB_PID_L; bHUBPIDH = HUB_PID_H; bHUBVIDL = HUB_VID_L; bHUBVIDH = HUB_VID_H;
 
     // copy descriptor to allocated address // copy device and configuration descriptor to external memory
-    for(bTemp=0;bTemp<SIZEOF_DEVICE_DESCRIPTOR;bTemp++) abDeviceDescriptor[bTemp] = abromDeviceDescriptor[bTemp]; for(bTemp=0;bTemp<SIZEOF_BOOTCODE_CONFIG_DESC_GROUP;bTemp++) abConfigurationDescriptorGroup[bTemp] = abromConfigurationDescriptorGroup[bTemp];
+    for(bTemp=0;bTemp<SIZEOF_DEVICE_DESCRIPTOR;bTemp++)
+        abDeviceDescriptor[bTemp] = abromDeviceDescriptor[bTemp];
+
+    for(bTemp=0;bTemp<SIZEOF_BOOTCODE_CONFIG_DESC_GROUP;bTemp++)
+        abConfigurationDescriptorGroup[bTemp] = abromConfigurationDescriptorGroup[bTemp];
 
     // set power wait time for the hub
 
@@ -1068,9 +1058,10 @@ VOID Ep1OutputInterruptHandler(VOID)
 
 | Interrupt Service Routines | +---------------------------------------------------------------------------*/
 //interrupt [0x03] void EX0_int(void) // External Interrupt 0
-void EX0_int(void) interrupt 0 using 2 // External Interrupt 0
+//void EX0_int(void) __interrupt 0 using 2 // External Interrupt 0
+__interrupt void EX0_int(void) // External Interrupt 0
 {
-    EA = DISABLE; // Disable any further interrupts
+    IE_bit.EA = DISABLE; // Disable any further interrupts
 
     // always clear the interrupt source first and then bVECINT
     switch (bVECINT){ // Identify Interrupt ID
@@ -1100,7 +1091,7 @@ void EX0_int(void) interrupt 0 using 2 // External Interrupt 0
 
     }
 
-    EA = ENABLE; // Enable the interrupts again
+    IE_bit.EA = ENABLE; // Enable the interrupts again
 
 } //----------------------------------------------------------------------------
 
@@ -1181,8 +1172,8 @@ VOID main(VOID)
 
     if(bExecuteFirmware == FALSE){
         // use default value
-        EA = ENABLE; // Enable global interrupt
-        EX0 = ENABLE; // Enable interrupt 0
+        IE_bit.EA = ENABLE; // Enable global interrupt
+        IE_bit.EX0 = ENABLE; // Enable interrupt 0
         bUSBCTL |= USBCTL_CONT; // connect to upstream port
 #ifdef SIMULATION
         lcdPutString("Connecting");
@@ -1193,7 +1184,7 @@ VOID main(VOID)
 
     // Disable all interrupts
 
-    EA = DISABLE; // disable global interrupt
+    IE_bit.EA = DISABLE; // disable global interrupt
     // disconnection
     bUSBCTL = USBCTL_FRSTE;
     // map xdata to code space if checksum correct

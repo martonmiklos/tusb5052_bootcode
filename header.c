@@ -27,14 +27,13 @@
 |  HMT     20000528     born                                                  |
 |                                                                             |
 +----------------------------------------------------------------------------*/
-#include <reg51.h>       // 8051 sfr definition
+#include <io51.h>       // 8051 sfr definition
 #include "types.h"
-#include "tusb5152.h"
+#include "tusb5052.h"
 #include "header.h"
 #include "i2c.h"
 #include "usb.h"
 #include "delay.h"
-#include "core.h"
 
 #ifdef SIMULATION
 #include "gpio.h"
@@ -45,9 +44,9 @@ extern BYTE xdata abDeviceDescriptor[SIZEOF_DEVICE_DESCRIPTOR];
 extern BYTE xdata abConfigurationDescriptorGroup[SIZEOF_BOOTCODE_CONFIG_DESC_GROUP];
 // BYTE xdata abEepromHeader[0x80] _at_ 0xFE30;
 
-BYTE xdata abEepromHeader[0x80] _at_ 0xFE40;
+__no_init BYTE xdata abEepromHeader[0x80] @ 0xFE40;
 
-extern BYTE xdata abDownloadFirmware[1024*16];
+extern BYTE xdata abDownloadFirmware[DOWNLOAD_FW_SIZE];
 
 /*---------------------------------------------------------------------------+
 |  Constant Definition                                                       |
@@ -74,7 +73,7 @@ BYTE headerCheckProductIDonI2c(VOID)
     abEepromHeader[2] = 0x00;
     abEepromHeader[3] = 0x00;
     
-    if(i2cRead(bi2cDeviceAddress, 0x0000, 0x02, &abEepromHeader[0]) == NO_ERROR){
+    if(i2cRead(bi2cDeviceAddress, 0x0000, 0x02, (PBYTE)&abEepromHeader[0]) == NO_ERROR){
         if((abEepromHeader[0] == FUNCTION_PID_L) && (abEepromHeader[1] == FUNCTION_PID_H)){
             bCurrentHeaderMediumType = DATA_MEDIUM_HEADER_I2C;
             #ifdef SIMULATION
@@ -161,8 +160,8 @@ BYTE LoadFirmwareBasicFromI2c(VOID)
     wProgramSize         = wCurrentDataSize - sizeof(tFirmwareRevision);
     wAddressI2c          = wAddressI2c + sizeof(tFirmwareRevision);
          
-    if(i2cRead(bi2cDeviceAddress,wAddressI2c,
-        wProgramSize, &abDownloadFirmware[0x0000]) != NO_ERROR) return ERROR;
+    if(i2cRead(bi2cDeviceAddress,wAddressI2c, wProgramSize, (PBYTE)&abDownloadFirmware[0x0000]) != NO_ERROR) 
+      return ERROR;
        
     // get Checksum from RAM
     bChecksum  = tCurrentFirmwareRevision.bMinor;
@@ -185,8 +184,8 @@ BYTE LoadUsbInfoBasicFromI2c(VOID)
     wAddress = ulCurrentHeaderPointer;
 
     ptUsbInfoBasic = (tHeaderUsbInfoBasic *)abEepromHeader;
-    if(i2cRead(bi2cDeviceAddress,wAddress,
-       wCurrentDataSize, &abEepromHeader[0x0000]) != NO_ERROR) return ERROR;
+    if(i2cRead(bi2cDeviceAddress,wAddress, wCurrentDataSize, (PBYTE)&abEepromHeader[0x0000]) != NO_ERROR) 
+       return ERROR;
           
     // get check sum
     bChecksum = 0x00;   
